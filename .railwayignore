@@ -1,0 +1,21 @@
+# Frontend files (not needed for backend deployment)
+main.html
+oyster-js.js
+oyster-styles.css
+frontend/
+
+# Git files
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Development files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db 
