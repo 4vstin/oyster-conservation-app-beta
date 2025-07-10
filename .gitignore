@@ -67,4 +67,7 @@ uploads/
 *.png
 *.gif
 *.bmp
-*.tiff 
+*.tiff
+
+# Google Cloud service account keys
+*oyster-conservationist-db-*.json 
