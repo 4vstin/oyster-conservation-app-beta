@@ -36,7 +36,7 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 const drive = google.drive({ version: 'v3', auth });
 
 // Your Google Drive folder ID
-const FOLDER_ID = '1uV-o_WXok8Pl5KUhH5P3H1RkRj5ur_JH?dmr=1&ec=wgc-drive-hero-goto';
+const FOLDER_ID = '1uV-o_WXok8Pl5KUhH5P3H1RkRj5ur_JH';
 
 app.post('/upload-photo', upload.single('photo'), async (req, res) => {
   console.log('Received upload request');
