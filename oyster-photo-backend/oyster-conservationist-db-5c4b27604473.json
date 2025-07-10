@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "oyster-conservationist-db",
+  "private_key_id": "5c4b27604473de6d3376fa21a12c270f2fea4db5",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCHRbGKocSTri1Y\nCDEny3ee1lluhKytJu1j1eKld9xB1uPW3d+cs8FNoKAklyO2ky4WH46LzjIAgmSF\nQy4rxzQT77nszzN6Z2dL38vW4/S7EBtO29S4KB91K2OHXZ2HxUe2ihQ9l+ffyEa1\nVOoGUjKr3m+kq8+q1VV3vzGNnByN7rz/4PNePl3kqslzhEPqoAcRmSutv/OQqJiR\n6eQ4xV4slpfBG0gYNt5b5n1463TMU2fDXMEBF/3KjLIfsIvZKPWl5OIx8ZEGHv2m\nKNooOqO81weiQJXfKVMe2oZ7hes9R/StY76ciiEQT0Vq8UIlWPhExBC74Sotb/5B\ngZWRf3cPAgMBAAECggEAAT7cCU8UrYNvZB3I+MBG+Vv+WbRGXsI6quc4fZY38tyU\n5nt5L4PcNFnHf7XdADV6DtMzyHmLdW5omPvAX9xgCSkuQaNlcZ1rrxHx6G9pID9g\nDXCchkGSGXhtI6C5J2LGMwu//YRPHJljmp5Gw5cGY8BLzGzrrgnJgALhASZ3K4J9\n7dcCdD/Jc7/Yx4myHhwkOLn8laU6A2vaZM2XNRhaMsndHeN769U0Tf7M7FUQqRO2\nN67FdDmOTshySSl+/Vr8s9n8Gf1s0KvNClnmN0+lhOrxbyZ1mqJ6aug0+CbmJEgt\nt21xkUfjexgMKcppeQBswVG5HRzcDPNlYdUPY0C7KQKBgQC81WZWsZGr5VscPubc\nk4siAM3TL0ZQGVe1fQljHGLHn30GqC6hwfOfNmUbRDnRK5cjRK2KlCqBXrgzfFXe\nXE9Q4DqIzhNJkMm4kr/6o4KnK8SoMOS54xuFw2BuzEjepZ+SeFldqFT6WDF5mzwp\n19ocDQUlUwJpr2Apec6fBRp4HQKBgQC3YynWElc4uPNYzxGx5hQ8Ux8qFDbxfEZc\nFg/fVEmfWmbFGZy9QJ7qo8mVq4fhCLPkx/ylw6e7uT0b9VLJ4ULsNKnx427J/Ir8\nm/GEjKYZdTTSasH3tVBWUJswFy8Q/l/XOfgXfYMfU32oVr756Zvnx9Qi0WI90L0n\nRFRoWGY8GwKBgAG/vD3rUR0Vd72QO5UpbK148m8VTgJp6a0NpmublLKioIbSQfRP\nlpEP8OnKvPpZ/AFgnnbdHnOqS+x2J1ly420tVn1z4yvYQnYKLesFXq1rs1uXcFbk\napnXkGoWTEp7oDm8EZ/Tck4LSRIGRQ1iKWv/FuAcn7YY4Lwhm69PXcplAoGAc+CZ\n9+Wg7XuYcJ5vPOz4DmIriAg7630ubFOYdfKpjqKt249ihgdGI1eZMhSwCFbabQ6d\nKxUlcK4M2hS62kuXYO+qDuk6ATGtlQ7onmvNLLrtxKOmquILwG6wkMOlfuRtJO9B\nP36Ukv/Ln8ooZHvjgqK2/cU2gX7bdutrNn/dIc8CgYB4qHiZ63UGg7hmsXrWaW3h\nDFfzutQdSSFDLmBrSh2wxKphUv+JrLDjXv0hFAN5n1iNrMqENb+CQ2cdB+yneOzS\nBP7XT9ldZ/feC+pSQSp6wZ5m5KbC7FfT+hlkddrvV7BNg/hTSlF79mH7xXrUN/x3\nTmLaKx2zq+hw4ThyhLRtYA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "oyster-drive-uploader@oyster-conservationist-db.iam.gserviceaccount.com",
+  "client_id": "114022397235882363948",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/oyster-drive-uploader%40oyster-conservationist-db.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
