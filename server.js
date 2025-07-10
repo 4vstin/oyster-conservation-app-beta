@@ -1,3 +1,18 @@
+const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+console.log('GOOGLE_APPLICATION_CREDENTIALS =', keyFile);
+console.log('  exists?         =', fs.existsSync(keyFile));
+let raw;
+try {
+  raw = fs.readFileSync(keyFile, 'utf8');
+  console.log('  first line     =', raw.split('\n')[0]);
+} catch (e) {
+  console.error('  FAILED to read keyFile:', e.message);
+}
+
+const creds = JSON.parse(raw);
+console.log('  client_email =', creds.client_email);
+console.log('  key_id       =', creds.private_key_id);
+
 const express = require('express');
 const multer = require('multer');
 const { google } = require('googleapis');
