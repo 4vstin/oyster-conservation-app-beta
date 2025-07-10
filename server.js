@@ -14,6 +14,18 @@ app.get('/', (req, res) => {
   res.json({ message: 'Oyster photo upload server is running!' });
 });
 
+// Test route to check Google credentials
+app.get('/test-credentials', (req, res) => {
+  const hasCredentials = !!process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const credentialsLength = process.env.GOOGLE_APPLICATION_CREDENTIALS ? process.env.GOOGLE_APPLICATION_CREDENTIALS.length : 0;
+  
+  res.json({ 
+    hasCredentials,
+    credentialsLength,
+    message: hasCredentials ? 'Credentials found' : 'No credentials found'
+  });
+});
+
 // Load service account key
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
@@ -28,10 +40,15 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 } else {
   // Use local file for development
   const KEYFILEPATH = path.join(__dirname, 'oyster-photo-backend', 'oyster-conservationist-db-5c4b27604473.json');
-  auth = new google.auth.GoogleAuth({
-    keyFile: KEYFILEPATH,
-    scopes: SCOPES,
-  });
+  if (fs.existsSync(KEYFILEPATH)) {
+    auth = new google.auth.GoogleAuth({
+      keyFile: KEYFILEPATH,
+      scopes: SCOPES,
+    });
+  } else {
+    console.error('Service account key file not found:', KEYFILEPATH);
+    throw new Error('Google Cloud credentials not configured');
+  }
 }
 const drive = google.drive({ version: 'v3', auth });
 
@@ -46,6 +63,16 @@ app.post('/upload-photo', upload.single('photo'), async (req, res) => {
     }
     
     console.log('File received:', req.file.originalname);
+    console.log('File path:', req.file.path);
+    console.log('File mimetype:', req.file.mimetype);
+    
+    // Check if Google credentials are available
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      console.error('GOOGLE_APPLICATION_CREDENTIALS environment variable not set');
+      return res.status(500).json({ success: false, error: 'Google Cloud credentials not configured' });
+    }
+    
+    console.log('Google credentials found, attempting to parse...');
     
     const fileMetadata = {
       name: req.file.originalname,
@@ -55,18 +82,30 @@ app.post('/upload-photo', upload.single('photo'), async (req, res) => {
       mimeType: req.file.mimetype,
       body: fs.createReadStream(req.file.path),
     };
+    
+    console.log('Attempting to upload to Google Drive...');
     const file = await drive.files.create({
       resource: fileMetadata,
       media: media,
       fields: 'id',
     });
+    
     // Remove file from server after upload
     fs.unlinkSync(req.file.path);
     console.log('File uploaded successfully:', file.data.id);
     res.json({ success: true, fileId: file.data.id });
   } catch (err) {
-    console.error('Upload error:', err.message);
-    res.status(500).json({ success: false, error: err.message });
+    console.error('Upload error details:', {
+      message: err.message,
+      stack: err.stack,
+      code: err.code,
+      status: err.status
+    });
+    res.status(500).json({ 
+      success: false, 
+      error: err.message,
+      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 });
 
