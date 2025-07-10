@@ -28,7 +28,7 @@ app.get('/test-credentials', (req, res) => {
 
 // Load service account key
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
-
+/*
 let auth;
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   // Use environment variable for Railway deployment
@@ -50,6 +50,12 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     throw new Error('Google Cloud credentials not configured');
   }
 }
+const drive = google.drive({ version: 'v3', auth });
+*/
+const auth = new google.auth.GoogleAuth({
+  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  scopes: SCOPES,
+});
 const drive = google.drive({ version: 'v3', auth });
 
 // Your Google Drive folder ID
