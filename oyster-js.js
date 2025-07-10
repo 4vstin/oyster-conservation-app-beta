@@ -262,7 +262,7 @@ function submitData() {
   if (fileInput && fileInput.files.length > 0) {
     const formData = new FormData();
     formData.append('photo', fileInput.files[0]);
-    photoUploadPromise = fetch('https://oyster-data-backend.onrender.com', {
+    photoUploadPromise = fetch('https://oyster-data-backend.onrender.com/upload-photo', {
       method: 'POST',
       body: formData,
     })
