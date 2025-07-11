@@ -6,37 +6,31 @@ const multer = require('multer');
 const cors = require('cors');
 const { google } = require('googleapis');
 
-// 2) Debug: check if credentials are available
-const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-console.log('GOOGLE_APPLICATION_CREDENTIALS exists? =', !!credentialsJson);
-console.log('Credentials length =', credentialsJson ? credentialsJson.length : 0);
-
-// 3) Parse service-account JSON
+// 1. Load credentials from base64 env var or fallback to local file
 let creds;
-if (credentialsJson) {
+if (process.env.GOOGLE_CREDENTIALS_B64) {
   try {
-    creds = JSON.parse(credentialsJson);
+    const decoded = Buffer.from(process.env.GOOGLE_CREDENTIALS_B64, 'base64').toString('utf8');
+    creds = JSON.parse(decoded);
+    console.log('Loaded Google credentials from base64 env var.');
     console.log('  client_email    =', creds.client_email);
     console.log('  private_key_id  =', creds.private_key_id);
-  } catch(e) {
-    console.error('  FAILED to parse JSON:', e.message);
-    console.error('  This means the environment variable is not valid JSON');
+  } catch (e) {
+    console.error('FAILED to decode/parse GOOGLE_CREDENTIALS_B64:', e.message);
     process.exit(1);
   }
 } else {
   // Fallback to local file for development
   const keyFile = path.join(__dirname, 'oyster-photo-backend', 'oyster-conservationist-db-5c4b27604473.json');
-  console.log('Trying local file:', keyFile);
-  console.log('  exists? =', fs.existsSync(keyFile));
-  
   if (fs.existsSync(keyFile)) {
     try {
       const raw = fs.readFileSync(keyFile, 'utf8');
       creds = JSON.parse(raw);
+      console.log('Loaded Google credentials from local file.');
       console.log('  client_email    =', creds.client_email);
       console.log('  private_key_id  =', creds.private_key_id);
-    } catch(e) {
-      console.error('  FAILED to read/parse local file:', e.message);
+    } catch (e) {
+      console.error('FAILED to read/parse local file:', e.message);
       process.exit(1);
     }
   } else {
@@ -45,7 +39,7 @@ if (credentialsJson) {
   }
 }
 
-// 4) Initialize JWT auth directly
+// 2. Initialize Google Auth
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 const authClient = new google.auth.JWT(
   creds.client_email,
@@ -55,7 +49,7 @@ const authClient = new google.auth.JWT(
 );
 const drive = google.drive({ version: 'v3', auth: authClient });
 
-// 5) Setup Express
+// 3. Setup Express
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 app.use(cors());
