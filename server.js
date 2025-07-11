@@ -1,3 +1,5 @@
+console.log('Local time:', new Date().toISOString());
+
 // 1) Load built-ins and libs before using them
 const fs = require('fs');
 const path = require('path');
@@ -6,17 +8,16 @@ const multer = require('multer');
 const cors = require('cors');
 const { google } = require('googleapis');
 
-// 1. Load credentials from base64 env var or fallback to local file
+// 1. Load credentials from JSON env var or fallback to local file
 let creds;
-if (process.env.GOOGLE_CREDENTIALS_B64) {
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   try {
-    const decoded = Buffer.from(process.env.GOOGLE_CREDENTIALS_B64, 'base64').toString('utf8');
-    creds = JSON.parse(decoded);
-    console.log('Loaded Google credentials from base64 env var.');
+    creds = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    console.log('Loaded Google credentials from env var.');
     console.log('  client_email    =', creds.client_email);
     console.log('  private_key_id  =', creds.private_key_id);
   } catch (e) {
-    console.error('FAILED to decode/parse GOOGLE_CREDENTIALS_B64:', e.message);
+    console.error('FAILED to parse GOOGLE_APPLICATION_CREDENTIALS:', e.message);
     process.exit(1);
   }
 } else {
