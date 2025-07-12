@@ -41,6 +41,27 @@ app_express.use(cors());
 app_express.get('/', (req, res) => res.json({ message: 'Server running (Firebase Storage version)' }));
 
 // -----------
+// Firebase Configuration Debug Endpoint
+// -----------
+app_express.get('/debug-firebase', (req, res) => {
+  const config = {
+    apiKey: process.env.FIREBASE_API_KEY ? '✅ Set' : '❌ Missing',
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN ? '✅ Set' : '❌ Missing',
+    projectId: process.env.FIREBASE_PROJECT_ID ? '✅ Set' : '❌ Missing',
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET ? '✅ Set' : '❌ Missing',
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID ? '✅ Set' : '❌ Missing',
+    appId: process.env.FIREBASE_APP_ID ? '✅ Set' : '❌ Missing'
+  };
+  
+  res.json({
+    message: 'Firebase Configuration Status',
+    config: config,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'Not set',
+    projectId: process.env.FIREBASE_PROJECT_ID || 'Not set'
+  });
+});
+
+// -----------
 // Photo Upload Endpoint
 // -----------
 app_express.post('/upload-photo', upload.single('photo'), async (req, res) => {
@@ -86,13 +107,49 @@ app_express.post('/upload-photo', upload.single('photo'), async (req, res) => {
   } catch (err) {
     console.error('Upload error:', err.message);
     console.error('Error details:', err);
+    console.error('Error code:', err.code);
+    console.error('Error stack:', err.stack);
     
     // Clean up temp file if it exists
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
     
-    res.status(500).json({ success: false, error: err.message });
+    // Return more detailed error information
+    res.status(500).json({ 
+      success: false, 
+      error: err.message,
+      errorCode: err.code,
+      errorDetails: err.message
+    });
+  }
+});
+
+// -----------
+// Test Firebase Storage Connection
+// -----------
+app_express.get('/test-firebase-storage', async (req, res) => {
+  try {
+    console.log('Testing Firebase Storage connection...');
+    
+    // Try to list files in the oyster-photos directory
+    const listRef = ref(storage, 'oyster-photos/');
+    const result = await listAll(listRef);
+    
+    res.json({ 
+      success: true, 
+      message: 'Firebase Storage connection successful',
+      fileCount: result.items.length,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+    });
+  } catch (err) {
+    console.error('Firebase Storage test failed:', err.message);
+    res.status(500).json({ 
+      success: false, 
+      error: err.message,
+      errorCode: err.code,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+    });
   }
 });
 
