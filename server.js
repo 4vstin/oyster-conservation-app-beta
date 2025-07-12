@@ -1,86 +1,129 @@
-console.log('Local time:', new Date().toISOString());
+// ===============================
+// Oyster Photo Upload Backend API (Firebase Storage Version)
+// ===============================
+// This version uses Firebase Storage - completely free tier available
+// No billing setup required, generous free limits
 
-// 1) Load built-ins and libs before using them
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const { google } = require('googleapis');
+const { initializeApp } = require('firebase/app');
+const { getStorage, ref, uploadBytes, getDownloadURL, listAll } = require('firebase/storage');
 
-// 1. Load credentials from JSON env var or fallback to local file
-let creds;
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  try {
-    creds = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-    console.log('Loaded Google credentials from env var.');
-    console.log('  client_email    =', creds.client_email);
-    console.log('  private_key_id  =', creds.private_key_id);
-  } catch (e) {
-    console.error('FAILED to parse GOOGLE_APPLICATION_CREDENTIALS:', e.message);
-    process.exit(1);
-  }
-} else {
-  // Fallback to local file for development
-  const keyFile = path.join(__dirname, 'oyster-photo-backend', 'oyster-conservationist-db-5c4b27604473.json');
-  if (fs.existsSync(keyFile)) {
-    try {
-      const raw = fs.readFileSync(keyFile, 'utf8');
-      creds = JSON.parse(raw);
-      console.log('Loaded Google credentials from local file.');
-      console.log('  client_email    =', creds.client_email);
-      console.log('  private_key_id  =', creds.private_key_id);
-    } catch (e) {
-      console.error('FAILED to read/parse local file:', e.message);
-      process.exit(1);
-    }
-  } else {
-    console.error('No Google credentials found in environment or local file');
-    process.exit(1);
-  }
-}
+// -----------
+// Firebase Configuration
+// -----------
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID
+};
 
-// 2. Initialize Google Auth
-const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
-const authClient = new google.auth.JWT(
-  creds.client_email,
-  null,
-  creds.private_key,
-  SCOPES
-);
-const drive = google.drive({ version: 'v3', auth: authClient });
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
 
-// 3. Setup Express
-const app = express();
+// -----------
+// Express App Setup
+// -----------
 const upload = multer({ dest: 'uploads/' });
-app.use(cors());
+const app_express = express();
+app_express.use(cors());
 
-// Health check
-app.get('/', (req, res) => res.json({ message: 'Server running' }));
+// -----------
+// Health Check Endpoint
+// -----------
+app_express.get('/', (req, res) => res.json({ message: 'Server running (Firebase Storage version)' }));
 
-// Upload endpoint
-app.post('/upload-photo', upload.single('photo'), async (req, res) => {
+// -----------
+// Photo Upload Endpoint
+// -----------
+app_express.post('/upload-photo', upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
     console.log('File:', req.file.originalname);
 
-    const fileMetadata = { name: req.file.originalname, parents: ['1uV-o_WXok8Pl5KUhH5P3H1RkRj5ur_JH'] };
-    const media = { mimeType: req.file.mimetype, body: fs.createReadStream(req.file.path) };
+    // Create a unique filename with timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fileName = `oyster-photos/${timestamp}-${req.file.originalname}`;
+    
+    // Create a reference to the file location
+    const storageRef = ref(storage, fileName);
+    
+    // Read the file
+    const fileBuffer = fs.readFileSync(req.file.path);
+    
+    // Upload to Firebase Storage
+    console.log('Uploading to Firebase Storage...');
+    const snapshot = await uploadBytes(storageRef, fileBuffer, {
+      contentType: req.file.mimetype,
+      customMetadata: {
+        originalName: req.file.originalname,
+        uploadedAt: new Date().toISOString()
+      }
+    });
 
-    console.log('Uploading to Drive...');
-    const driveRes = await drive.files.create({ resource: fileMetadata, media, fields: 'id' });
-
+    // Get the download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    // Remove the temporary file
     fs.unlinkSync(req.file.path);
-    console.log('Uploaded:', driveRes.data.id);
-    res.json({ success: true, fileId: driveRes.data.id });
+    
+    console.log('Uploaded to Firebase:', fileName);
+    res.json({ 
+      success: true, 
+      fileName: fileName,
+      downloadURL: downloadURL,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+    });
   } catch (err) {
     console.error('Upload error:', err.message);
     console.error('Error details:', err);
+    
+    // Clean up temp file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
+// -----------
+// List Files Endpoint (Optional)
+// -----------
+app_express.get('/list-photos', async (req, res) => {
+  try {
+    const listRef = ref(storage, 'oyster-photos/');
+    const result = await listAll(listRef);
+    
+    const fileList = await Promise.all(
+      result.items.map(async (itemRef) => {
+        const url = await getDownloadURL(itemRef);
+        return {
+          name: itemRef.name,
+          fullPath: itemRef.fullPath,
+          downloadURL: url
+        };
+      })
+    );
+    
+    res.json({ success: true, files: fileList });
+  } catch (err) {
+    console.error('List error:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// -----------
+// Start Server
+// -----------
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+app_express.listen(PORT, () => console.log(`Listening on port ${PORT} (Firebase Storage version)`)); 

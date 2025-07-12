@@ -7,4 +7,16 @@ services:
     healthCheckPath: /
     envVars:
       - key: NODE_ENV
-        value: production 
+        value: production
+      - key: FIREBASE_API_KEY
+        value: "your-api-key-here"
+      - key: FIREBASE_AUTH_DOMAIN
+        value: "your-project.firebaseapp.com"
+      - key: FIREBASE_PROJECT_ID
+        value: "your-project-id"
+      - key: FIREBASE_STORAGE_BUCKET
+        value: "your-project.appspot.com"
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: "123456789"
+      - key: FIREBASE_APP_ID
+        value: "1:123456789:web:abcdef" 

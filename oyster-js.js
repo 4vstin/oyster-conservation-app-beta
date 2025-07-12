@@ -366,4 +366,13 @@ if (delAllBtn) {
   delAllBtn.addEventListener("click", function() { pulseButton(delAllBtn); });
 }
 
+document.getElementById('file-input').addEventListener('change', function() {
+  const fileNameDisplay = document.getElementById('file-name-display');
+  if (this.files && this.files.length > 0) {
+    fileNameDisplay.textContent = this.files[0].name;
+  } else {
+    fileNameDisplay.textContent = '';
+  }
+});
+
 
