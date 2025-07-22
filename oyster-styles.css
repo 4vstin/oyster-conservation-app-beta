@@ -485,7 +485,7 @@ p, label {
   .title-oyster {
     font-size: 1.8rem;
     margin: 16px 0 12px 0;
-    padding-top: 0px;
+    padding-top: 32px;
   }
 
   .input-box {
